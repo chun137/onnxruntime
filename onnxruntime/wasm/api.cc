@@ -4,6 +4,7 @@
 #include "api.h"
 
 #include "core/session/onnxruntime_cxx_api.h"
+#include "model.h"
 
 #include <iostream>
 #include <vector>
@@ -281,4 +282,44 @@ int OrtRun(OrtSession* session,
            const char** output_names, size_t output_count, ort_tensor_handle_t* outputs,
            OrtRunOptions* run_options) {
   return CHECK_STATUS(Run, session, run_options, input_names, inputs, input_count, output_names, output_count, outputs);
+}
+
+namespace {
+
+Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test");
+Ort::Session* session;
+size_t input_tensor_size = 298 * 224 * 3;
+const char *inputs[] = {"input"};
+const char *outputs[] = {"alpha"};
+int64_t dims[4] = {1, 3, 224, 298};
+const int64_t output_tensor_size = 224 * 298 * sizeof(float);
+
+}
+
+int load_model() {
+  Ort::SessionOptions session_options;
+  session_options.SetIntraOpNumThreads(1);
+  session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
+  session = new Ort::Session(env, (void*)g_model1, sizeof(g_model1), session_options);
+  //session = new Ort::Session(env, "/dist/matting_model.onnx", session_options);
+
+  return 0;
+}
+
+int predict(float *input_tensor_data) {
+  // create input tensor object from data values
+  Ort::MemoryInfo memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
+  Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, input_tensor_data, input_tensor_size, dims, 4);
+  //assert(input_tensor.IsTensor());
+
+  // score model & input tensor, get back output tensor)
+  auto output_tensors = session->Run(Ort::RunOptions{nullptr}, inputs, &input_tensor, 1, outputs, 1);
+  //assert(output_tensors.size() == 1 && output_tensors.front().IsTensor());
+
+  // Get pointer to output tensor float values
+  float* floatarr = output_tensors.front().GetTensorMutableData<float>();
+
+  memcpy(input_tensor_data, floatarr, output_tensor_size);
+
+  return 0;
 }

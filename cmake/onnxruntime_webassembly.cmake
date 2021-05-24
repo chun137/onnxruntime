@@ -2,7 +2,8 @@
 # Licensed under the MIT License.
 
 file(GLOB_RECURSE onnxruntime_webassembly_src CONFIGURE_DEPENDS
-  "${ONNXRUNTIME_ROOT}/wasm/api.cc"
+  "${ONNXRUNTIME_ROOT}/wasm/api.cc",
+  "${ONNXRUNTIME_ROOT}/wasm/model.cc"
 )
 
 source_group(TREE ${REPO_ROOT} FILES ${onnxruntime_webassembly_src})
@@ -50,6 +51,8 @@ set_target_properties(onnxruntime_webassembly PROPERTIES LINK_FLAGS "           
                       -s EXPORT_ALL=0                                                         \
                       -s LLD_REPORT_UNDEFINED                                                 \
                       -s VERBOSE=0                                                            \
+                      -g0                                                                     \
+                      -O3                                                                     \
                       -s NO_FILESYSTEM=1                                                      \
                       --no-entry")
 
