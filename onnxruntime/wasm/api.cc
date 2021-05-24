@@ -288,11 +288,15 @@ namespace {
 
 Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test");
 Ort::Session* session;
-size_t input_tensor_size = 298 * 224 * 3;
+const size_t kWidth = 298;
+const size_t kHeight = 224;
+const size_t kMaskSize = kWidth * kHeight;
+const size_t input_tensor_size = kMaskSize * 3;
+const size_t output_tensor_size = kMaskSize * sizeof(float);
+float input_data[input_tensor_size] = {0.0};
 const char *inputs[] = {"input"};
 const char *outputs[] = {"alpha"};
 int64_t dims[4] = {1, 3, 224, 298};
-const int64_t output_tensor_size = 224 * 298 * sizeof(float);
 
 }
 
@@ -307,9 +311,15 @@ int load_model() {
 }
 
 int predict(float *input_tensor_data) {
+  for (size_t i = 0; i < kMaskSize; i++) {
+    input_data[i] = (input_tensor_data[i * 4] / 255.0 - 0.485) / 0.229;                     //r
+    input_data[kMaskSize + i] = (input_tensor_data[i * 4 + 1] / 255.0 - 0.456) / 0.224;     //g
+    input_data[kMaskSize * 2 + i] = (input_tensor_data[i * 4 + 2] / 255.0 - 0.406) / 0.225; //b
+  }
+
   // create input tensor object from data values
   Ort::MemoryInfo memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-  Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, input_tensor_data, input_tensor_size, dims, 4);
+  Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, input_data, input_tensor_size, dims, 4);
   //assert(input_tensor.IsTensor());
 
   // score model & input tensor, get back output tensor)
