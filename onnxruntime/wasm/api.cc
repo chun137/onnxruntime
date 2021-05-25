@@ -288,15 +288,15 @@ namespace {
 
 Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test");
 Ort::Session* session;
-const size_t kWidth = 298;
+const size_t kWidth = 224;
 const size_t kHeight = 224;
 const size_t kMaskSize = kWidth * kHeight;
 const size_t input_tensor_size = kMaskSize * 3;
 const size_t output_tensor_size = kMaskSize * sizeof(float);
 float input_data[input_tensor_size] = {0.0};
 const char *inputs[] = {"input"};
-const char *outputs[] = {"alpha"};
-int64_t dims[4] = {1, 3, 224, 298};
+const char *outputs[] = {"1092"};
+int64_t dims[4] = {1, 3, kHeight, kWidth};
 
 }
 
@@ -304,7 +304,7 @@ int load_model() {
   Ort::SessionOptions session_options;
   session_options.SetIntraOpNumThreads(1);
   session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-  session = new Ort::Session(env, (void*)g_model1, sizeof(g_model1), session_options);
+  session = new Ort::Session(env, (void*)g_model2, sizeof(g_model2), session_options);
   //session = new Ort::Session(env, "/dist/matting_model.onnx", session_options);
 
   return 0;

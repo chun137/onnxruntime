@@ -51,8 +51,6 @@ set_target_properties(onnxruntime_webassembly PROPERTIES LINK_FLAGS "           
                       -s EXPORT_ALL=0                                                         \
                       -s LLD_REPORT_UNDEFINED                                                 \
                       -s VERBOSE=0                                                            \
-                      -g0                                                                     \
-                      -O3                                                                     \
                       -s NO_FILESYSTEM=1                                                      \
                       --no-entry")
 
