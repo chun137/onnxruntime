@@ -184,8 +184,9 @@ int EMSCRIPTEN_KEEPALIVE OrtRun(ort_session_handle_t session,
                                 size_t output_count,
                                 ort_tensor_handle_t* outputs,
                                 ort_run_options_handle_t run_options);
-};
 
 int EMSCRIPTEN_KEEPALIVE load_model();
 
 int EMSCRIPTEN_KEEPALIVE predict(float *input_tensor_data);
+
+};
